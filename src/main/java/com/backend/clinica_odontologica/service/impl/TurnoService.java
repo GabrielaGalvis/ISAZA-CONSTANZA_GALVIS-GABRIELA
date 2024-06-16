@@ -1,5 +1,6 @@
 package com.backend.clinica_odontologica.service.impl;
 
+import com.backend.clinica_odontologica.dto.entrada.OdontologoEntradaDto;
 import com.backend.clinica_odontologica.dto.entrada.PacienteEntradaDto;
 import com.backend.clinica_odontologica.dto.entrada.TurnoEntradaDto;
 import com.backend.clinica_odontologica.dto.salida.OdontologoSalidaDto;
@@ -60,30 +61,13 @@ public class TurnoService implements ITurnoService {
             //creamos la entidad turno
             Turno turnoARegistrar = new Turno();
             //mapeamos de dto a entidad
-            //de pacienteSalidaDto a Paciente
-            Paciente paciente = modelMapper.map(pacienteEncontrado,Paciente.class);
-            LOGGER.info("Paciente entidad: {}", JsonPrinter.toString(paciente));
-            //reanudamos la persistencia
-            paciente = entityManager.merge(paciente);
-            //seteamos
-            turnoARegistrar.setPaciente(paciente);
-            //de odontologoSalidaDto a Odontologo
-            Odontologo odontologo = modelMapper.map(odontologoEncontrado,Odontologo.class);
-            LOGGER.info("Odontologo entidad: {}", JsonPrinter.toString(odontologoEncontrado));
-            //reanudamos la persistencia
-            odontologo = entityManager.merge(odontologo);
-            //seteamos
-            turnoARegistrar.setOdontologo(odontologo);
-            //fecha y hora
-            turnoARegistrar.setFechaYHora(turnoEntradaDto.getFechaYHora());
-            LOGGER.info("Turno a registrar entidad: {}", JsonPrinter.toString(turnoARegistrar));
-
+            turnoARegistrar = deDtoAEntidad(pacienteEncontrado,odontologoEncontrado,turnoEntradaDto);
             //registramos el turno
             Turno turnoRegistrado = turnoRepository.save(turnoARegistrar);
             LOGGER.info("Turno registrado: {}", JsonPrinter.toString(turnoRegistrado));
 
             //mapeo de entidad a dto
-            turnoSalidaDto= modelMapper.map(turnoRegistrado,TurnoSalidaDto.class);
+            turnoSalidaDto= deEntidadADto(turnoRegistrado);
             LOGGER.info("TurnoSalidaDto: {}", JsonPrinter.toString(turnoSalidaDto));
         } else if (pacienteEncontrado==null) {
             LOGGER.error("No fue posible registrar el turno ya que no existe el paciente");
@@ -102,7 +86,7 @@ public class TurnoService implements ITurnoService {
         TurnoSalidaDto turnoEncontrado = null;
 
         if (turnoBuscado != null){
-            turnoEncontrado = modelMapper.map(turnoBuscado, TurnoSalidaDto.class);
+            turnoEncontrado = deEntidadADto(turnoBuscado);
             LOGGER.info("Turno encontrado: {}", JsonPrinter.toString(turnoEncontrado));
         } else LOGGER.error("No se ha encontrado el turno con id {}", id);
 
@@ -114,7 +98,7 @@ public class TurnoService implements ITurnoService {
         //mapeo de lista de entidades a lista de dtos
         List<TurnoSalidaDto> turnos = turnoRepository.findAll()
                 .stream()
-                .map(turno -> modelMapper.map(turno,TurnoSalidaDto.class))
+                .map(this::deEntidadADto)
                 .toList();
 
         LOGGER.info("Listado de todos los turnos: {}",turnos);
@@ -132,22 +116,24 @@ public class TurnoService implements ITurnoService {
     }
 
     @Override
+    @Transactional
     public TurnoSalidaDto actualizarTurno(TurnoEntradaDto turnoEntradaDto, Long id) {
-
-        Turno turnoRecibido = modelMapper.map(turnoEntradaDto, Turno.class);
+        PacienteSalidaDto pacienteRecibido = pacienteService.buscarPacientePorId(turnoEntradaDto.getIdPacienteEntradaDto());
+        LOGGER.info("Paciente recibido: {}", JsonPrinter.toString(pacienteRecibido));
+        OdontologoSalidaDto odontologoRecibido = odontologoService.buscarOdontologoPorId(turnoEntradaDto.getIdOdontologoEntradaDto());
+        LOGGER.info("Odontologo recibido: {}", JsonPrinter.toString(odontologoRecibido));
         Turno turnoAActualizar = turnoRepository.findById(id).orElse(null);
         TurnoSalidaDto turnoSalidaDto = null;
 
         if(turnoAActualizar != null){
-
+            Turno turnoRecibido = deDtoAEntidad(pacienteRecibido,odontologoRecibido,turnoEntradaDto);
             turnoRecibido.setId(turnoAActualizar.getId());
-            turnoRecibido.getPaciente().setId(turnoAActualizar.getPaciente().getId());
-            turnoRecibido.getOdontologo().setId(turnoAActualizar.getOdontologo().getId());
 
             turnoAActualizar = turnoRecibido;
+            LOGGER.info("Turno a actualizar: {}", JsonPrinter.toString(turnoAActualizar));
 
             turnoRepository.save(turnoAActualizar);
-            turnoSalidaDto = modelMapper.map(turnoAActualizar, TurnoSalidaDto.class);
+            turnoSalidaDto = deEntidadADto(turnoAActualizar);
             LOGGER.warn("Turno actualizado: {}", JsonPrinter.toString(turnoSalidaDto));
 
         } else {
@@ -159,17 +145,56 @@ public class TurnoService implements ITurnoService {
     }
 
     private void configureMapping(){
-        modelMapper.typeMap(Turno.class, TurnoSalidaDto.class)
+        /*modelMapper.typeMap(Turno.class, TurnoSalidaDto.class)
                 .addMappings(mapper -> {
                     mapper.map(src -> src.getPaciente().getId(), TurnoSalidaDto::setIdPaciente);
                     mapper.map(src -> src.getPaciente().getNombre()+" "+src.getPaciente().getApellido(),TurnoSalidaDto::setNombreCompletoPaciente);
                     mapper.map(src -> src.getOdontologo().getId(),TurnoSalidaDto::setIdOdontologo);
                     mapper.map(src -> src.getOdontologo().getNombre()+" "+src.getOdontologo().getApellido(),TurnoSalidaDto::setNombreCompletoOdontologo);
-                });
+                });*/
 
         modelMapper.typeMap(PacienteSalidaDto.class, Paciente.class)
                 .addMappings(mapper -> mapper.map(PacienteSalidaDto::getDomicilioSalidaDto, Paciente::setDomicilio));
 
         modelMapper.typeMap(OdontologoSalidaDto.class, Odontologo.class);
+
+        modelMapper.typeMap(PacienteEntradaDto.class, Paciente.class)
+                .addMappings(mapper -> mapper.map(PacienteEntradaDto::getDomicilioEntradaDto, Paciente::setDomicilio));
+
+        modelMapper.typeMap(OdontologoEntradaDto.class, Odontologo.class);
+    }
+
+    private TurnoSalidaDto deEntidadADto(Turno turnoEntidad) {
+        TurnoSalidaDto turnoSalidaDto = new TurnoSalidaDto();
+        turnoSalidaDto.setId(turnoEntidad.getId());
+        turnoSalidaDto.setIdPaciente(turnoEntidad.getPaciente().getId());
+        turnoSalidaDto.setNombreCompletoPaciente(turnoEntidad.getPaciente().getNombre()+" "+turnoEntidad.getPaciente().getApellido());
+        turnoSalidaDto.setIdOdontologo(turnoEntidad.getOdontologo().getId());
+        turnoSalidaDto.setNombreCompletoOdontologo(turnoEntidad.getOdontologo().getNombre()+" "+turnoEntidad.getOdontologo().getApellido());
+        turnoSalidaDto.setFechaYHora(turnoEntidad.getFechaYHora());
+        return turnoSalidaDto;
+    }
+
+    private Turno deDtoAEntidad(PacienteSalidaDto pacienteEncontrado, OdontologoSalidaDto odontologoEncontrado, TurnoEntradaDto turnoEntradaDto){
+        //mapeamos de dto a entidad
+        Turno turnoARegistrar= new Turno();
+        //de pacienteSalidaDto a Paciente
+        Paciente paciente = modelMapper.map(pacienteEncontrado,Paciente.class);
+        LOGGER.info("Paciente entidad: {}", JsonPrinter.toString(paciente));
+        //reanudamos la persistencia
+        paciente = entityManager.merge(paciente);
+        //seteamos
+        turnoARegistrar.setPaciente(paciente);
+        //de odontologoSalidaDto a Odontologo
+        Odontologo odontologo = modelMapper.map(odontologoEncontrado,Odontologo.class);
+        LOGGER.info("Odontologo entidad: {}", JsonPrinter.toString(odontologoEncontrado));
+        //reanudamos la persistencia
+        odontologo = entityManager.merge(odontologo);
+        //seteamos
+        turnoARegistrar.setOdontologo(odontologo);
+        //fecha y hora
+        turnoARegistrar.setFechaYHora(turnoEntradaDto.getFechaYHora());
+        LOGGER.info("Turno a registrar entidad: {}", JsonPrinter.toString(turnoARegistrar));
+        return turnoARegistrar;
     }
 }
