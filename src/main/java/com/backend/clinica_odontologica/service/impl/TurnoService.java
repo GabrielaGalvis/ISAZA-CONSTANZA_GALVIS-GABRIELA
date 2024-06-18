@@ -9,6 +9,7 @@ import com.backend.clinica_odontologica.dto.salida.TurnoSalidaDto;
 import com.backend.clinica_odontologica.entity.Odontologo;
 import com.backend.clinica_odontologica.entity.Paciente;
 import com.backend.clinica_odontologica.entity.Turno;
+import com.backend.clinica_odontologica.exceptions.BadRequestException;
 import com.backend.clinica_odontologica.exceptions.ResourceNotFoundException;
 import com.backend.clinica_odontologica.repository.TurnoRepository;
 import com.backend.clinica_odontologica.service.IOdontologoService;
@@ -46,7 +47,7 @@ public class TurnoService implements ITurnoService {
 
     @Override
     @Transactional
-    public TurnoSalidaDto registrarTurno(TurnoEntradaDto turnoEntradaDto) {
+    public TurnoSalidaDto registrarTurno(TurnoEntradaDto turnoEntradaDto) throws BadRequestException {
         //logica de negocio
         TurnoSalidaDto turnoSalidaDto= null;
         LOGGER.info("Turno entrada: {}", JsonPrinter.toString(turnoEntradaDto));
@@ -70,10 +71,13 @@ public class TurnoService implements ITurnoService {
             turnoSalidaDto= deEntidadADto(turnoRegistrado);
             LOGGER.info("TurnoSalidaDto: {}", JsonPrinter.toString(turnoSalidaDto));
         } else if (pacienteEncontrado==null) {
-            LOGGER.error("No fue posible registrar el turno ya que no existe el paciente");
+            LOGGER.error("No fue posible registrar el turno ya que no existe el paciente con id {}",turnoEntradaDto.getIdPacienteEntradaDto());
+            throw new BadRequestException("No existe registro de paciente con id "+ turnoEntradaDto.getIdPacienteEntradaDto());
+
         }else
         {
-            LOGGER.error("No fue posible registrar el turno ya que no existe el odontologo");
+            LOGGER.error("No fue posible registrar el turno ya que no existe el odontologo con id {}",turnoEntradaDto.getIdOdontologoEntradaDto());
+            throw new BadRequestException("No existe registro de odontologo con id "+ turnoEntradaDto.getIdOdontologoEntradaDto());
         }
 
         return turnoSalidaDto;
@@ -101,7 +105,7 @@ public class TurnoService implements ITurnoService {
                 .map(this::deEntidadADto)
                 .toList();
 
-        LOGGER.info("Listado de todos los turnos: {}",turnos);
+        LOGGER.info("Listado de todos los turnos: {}", JsonPrinter.toString(turnos));
         return turnos;
     }
 
@@ -111,13 +115,14 @@ public class TurnoService implements ITurnoService {
             turnoRepository.deleteById(id);
             LOGGER.warn("Se ha eliminado el turno con id {}", id);
         }  else {
+            LOGGER.error("No fue posible eliminar el turno porque no existe registro con id {}", id);
             throw new ResourceNotFoundException("No existe registro de turno con id " + id);
         }
     }
 
     @Override
     @Transactional
-    public TurnoSalidaDto actualizarTurno(TurnoEntradaDto turnoEntradaDto, Long id) {
+    public TurnoSalidaDto actualizarTurno(TurnoEntradaDto turnoEntradaDto, Long id) throws ResourceNotFoundException{
         PacienteSalidaDto pacienteRecibido = pacienteService.buscarPacientePorId(turnoEntradaDto.getIdPacienteEntradaDto());
         LOGGER.info("Paciente recibido: {}", JsonPrinter.toString(pacienteRecibido));
         OdontologoSalidaDto odontologoRecibido = odontologoService.buscarOdontologoPorId(turnoEntradaDto.getIdOdontologoEntradaDto());
@@ -137,8 +142,8 @@ public class TurnoService implements ITurnoService {
             LOGGER.warn("Turno actualizado: {}", JsonPrinter.toString(turnoSalidaDto));
 
         } else {
-            LOGGER.error("No fue posible actualizar el turno porque no se encuentra en nuestra base de datos");
-            //lanzar excepcion
+            LOGGER.error("No fue posible actualizar el turno porque no existe registro con id {}", id);
+            throw new ResourceNotFoundException("No existe registro de turno con id " + id);
         }
 
         return turnoSalidaDto;

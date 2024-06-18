@@ -22,6 +22,14 @@ public class GlobalExceptionHandler {
     }
 
     //Requerimiento manejo de BadRequestException
+    @ExceptionHandler({BadRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> manejarBadRequestException(BadRequestException badRequestException){
+        Map<String, String> mensaje = new HashMap<>();
+        mensaje.put("mensaje", "Recurso no encontrado: " + badRequestException.getMessage());
+        return mensaje;
+    }
+
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
