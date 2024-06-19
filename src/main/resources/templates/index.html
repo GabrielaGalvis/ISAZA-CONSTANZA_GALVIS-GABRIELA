@@ -58,35 +58,47 @@
     </ul>
   </aside>
   <main id="main" class="main">
-    <div class="pagetitle">
-      <h1>Citas</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
-          <li class="breadcrumb-item active">Listar</li>
-        </ol>
-      </nav>
-    </div><!-- End Page Title -->
+    <div class="row">
+      <div class="col-8 pagetitle">
+        <h1>Turnos</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
+            <li class="breadcrumb-item active">Listar</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="col-4" style="text-align: right;">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal">
+          Crear Turno
+        </button>
 
-    <section class="section dashboard">
+        <div class="modal fade" id="modal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Crear Turno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Crear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <section class="section">
       <div class="row">
         <div class="col-12">
-          <div class="card recent-sales overflow-auto">
+          <div class="card overflow-auto">
             <div class="card-body">
-              <h5 class="card-title">Citas</h5>
-              <table class="table table-borderless datatable">
-                <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Customer</th>
-                  <th scope="col">Product</th>
-                  <th scope="col">Price</th>
-                  <th scope="col">Status</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
+              <table class="table table-borderless datatable"></table>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@
 var simpleDatatable;
 function cargarDatos() {
     var datatable = document.querySelector('.datatable')
-    fetch('/pacientes/listar')
+    fetch('/odontologos/listar')
         .then(r => r.json())
         .then(datos => {
             var data = crearData(datos);
@@ -33,16 +33,10 @@ function cargarDatos() {
         });
 }
 
-function crearPaciente() {
+function crearOdontologo() {
     var formulario = document.querySelector("#formulario");
     var data = Object.fromEntries(new FormData(formulario));
-    data.domicilioEntradaDto = {
-        calle: data.calle,
-        numero: data.numero,
-        localidad: data.localidad,
-        provincia: data.provincia,
-    };
-    fetch("/pacientes/registrar", {
+    fetch("/odontologos/registrar", {
         method: "POST",
         headers: {'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -59,13 +53,11 @@ function crearPaciente() {
 
 function crearData(datos) {
     return {
-       headings: ["ID", "DNI", "Nombre", "Domicilio", "Fecha Ingreso"],
+       headings: ["ID", "Matricula", "Nombre"],
        data: datos.map(item => ([
            item.id,
-           item.dni,
-           item.nombre + " " + item.apellido,
-           item.domicilioSalidaDto.calle + " " + item.domicilioSalidaDto.numero + ", " + item.domicilioSalidaDto.localidad + ", " + item.domicilioSalidaDto.provincia,
-           item.fechaIngreso + ""
+           item.numeroDeMatricula,
+           item.nombre + " " + item.apellido
        ]))
    };
 }
