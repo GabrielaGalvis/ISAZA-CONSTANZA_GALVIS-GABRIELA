@@ -12,16 +12,6 @@ public class ViewController implements ErrorController {
         return "index";
     }
 
-    @GetMapping({"/pacientes", "/pacientes.html"})
-    public String pacientes() {
-        return "pacientes";
-    }
-
-    @GetMapping({"/odontologos", "/odontologos.html"})
-    public String odontologos() {
-        return "odontologos";
-    }
-
     @RequestMapping("/error")
     public String handleError() {
         return "pages-error-404";

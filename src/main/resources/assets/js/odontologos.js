@@ -1,7 +1,4 @@
 (function() {
-    document.querySelector(".toggle-sidebar-btn").addEventListener("click", function(e) {
-        document.querySelector('body').classList.toggle('toggle-sidebar')
-    });
     cargarDatos();
 })();
 
@@ -41,9 +38,22 @@ function crearOdontologo() {
         headers: {'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     })
-    .then(respuesta => respuesta.status === 201 ? respuesta.json() : Promise.resolve(null))
+    .then(respuesta => {
+        document.querySelectorAll(".validation-error").forEach(item => item.innerText = '');
+        if (respuesta.status !== 201) {
+            respuesta.json().then(mensajes => {
+                var entries = Object.entries(mensajes);
+                entries.forEach(([id, mensaje]) => {
+                    document.querySelector("#" + id).innerText = mensaje;
+                })
+            });
+            return Promise.resolve(null);
+        }
+        return respuesta.json();
+    })
     .then(item => {
         if (item) {
+            document.querySelectorAll(".validation-error").forEach(item => item.innerText = '');
             formulario.reset();
             document.querySelector("#cerrarModalBoton").click();
             simpleDatatable.insert(crearData([item]));
