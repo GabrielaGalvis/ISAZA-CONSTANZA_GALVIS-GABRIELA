@@ -15,22 +15,17 @@ import java.util.List;
 @RequestMapping("turnos")
 public class TurnoController {
 
-    //peticion http json <-> @RequestBody & @ResponseBody -> java dto -> controller dto -> servicio dto <-> entidad <-> persistencia entidad <-> base de datos
-    //se trabaja con DTP
-
     private ITurnoService turnoService;
 
     public TurnoController(ITurnoService turnoService) {
         this.turnoService = turnoService;
     }
 
-    //POST
     @PostMapping("/registrar")
     public ResponseEntity<TurnoSalidaDto> registrarTurno(@RequestBody @Valid TurnoEntradaDto turnoEntradaDto) throws BadRequestException {
         return new ResponseEntity<>(turnoService.registrarTurno(turnoEntradaDto), HttpStatus.CREATED);
     }
 
-    //GET
     @GetMapping("/listar")
     public ResponseEntity<List<TurnoSalidaDto>> listarTurnos(){
         return new ResponseEntity<>(turnoService.listarTurnos(), HttpStatus.OK);
@@ -41,13 +36,11 @@ public class TurnoController {
         return new ResponseEntity<>(turnoService.buscarTurnoPorId(id), HttpStatus.OK);
     }
 
-    //PUT
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<TurnoSalidaDto> actualizarTurno(@RequestBody @Valid TurnoEntradaDto turnoEntradaDto, @PathVariable Long id) throws ResourceNotFoundException{
         return new ResponseEntity<>(turnoService.actualizarTurno(turnoEntradaDto, id), HttpStatus.OK);
     }
 
-    //DELETE
     @DeleteMapping("/eliminar")//localhost:8080/turnos/eliminar?id=x
     public ResponseEntity<?> eliminarTurno(@RequestParam Long id) throws ResourceNotFoundException {
         turnoService.eliminarTurno(id);

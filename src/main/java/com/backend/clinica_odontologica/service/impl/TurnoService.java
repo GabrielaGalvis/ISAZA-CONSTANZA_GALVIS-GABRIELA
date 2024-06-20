@@ -48,10 +48,10 @@ public class TurnoService implements ITurnoService {
     @Override
     @Transactional
     public TurnoSalidaDto registrarTurno(TurnoEntradaDto turnoEntradaDto) throws BadRequestException {
-        //logica de negocio
+
         TurnoSalidaDto turnoSalidaDto= null;
         LOGGER.info("Turno entrada: {}", JsonPrinter.toString(turnoEntradaDto));
-        //buscamos si el paciente existe
+
         PacienteSalidaDto pacienteEncontrado = pacienteService.buscarPacientePorId(turnoEntradaDto.getIdPacienteEntradaDto());
         OdontologoSalidaDto odontologoEncontrado = odontologoService.buscarOdontologoPorId(turnoEntradaDto.getIdOdontologoEntradaDto());
 
@@ -59,15 +59,13 @@ public class TurnoService implements ITurnoService {
             LOGGER.info("PacienteSalidaDto encontrado: {}", JsonPrinter.toString(pacienteEncontrado));
             LOGGER.info("OdontologoSalidaDto encontrado: {}", JsonPrinter.toString(odontologoEncontrado));
 
-            //creamos la entidad turno
-            Turno turnoARegistrar = new Turno();
-            //mapeamos de dto a entidad
-            turnoARegistrar = deDtoAEntidad(pacienteEncontrado,odontologoEncontrado,turnoEntradaDto);
-            //registramos el turno
+
+            Turno turnoARegistrar = deDtoAEntidad(pacienteEncontrado,odontologoEncontrado,turnoEntradaDto);
+
             Turno turnoRegistrado = turnoRepository.save(turnoARegistrar);
             LOGGER.info("Turno registrado: {}", JsonPrinter.toString(turnoRegistrado));
 
-            //mapeo de entidad a dto
+
             turnoSalidaDto= deEntidadADto(turnoRegistrado);
             LOGGER.info("TurnoSalidaDto: {}", JsonPrinter.toString(turnoSalidaDto));
         } else if (pacienteEncontrado==null) {
@@ -99,7 +97,7 @@ public class TurnoService implements ITurnoService {
 
     @Override
     public List<TurnoSalidaDto> listarTurnos(){
-        //mapeo de lista de entidades a lista de dtos
+
         List<TurnoSalidaDto> turnos = turnoRepository.findAll()
                 .stream()
                 .map(this::deEntidadADto)
@@ -150,13 +148,6 @@ public class TurnoService implements ITurnoService {
     }
 
     private void configureMapping(){
-        /*modelMapper.typeMap(Turno.class, TurnoSalidaDto.class)
-                .addMappings(mapper -> {
-                    mapper.map(src -> src.getPaciente().getId(), TurnoSalidaDto::setIdPaciente);
-                    mapper.map(src -> src.getPaciente().getNombre()+" "+src.getPaciente().getApellido(),TurnoSalidaDto::setNombreCompletoPaciente);
-                    mapper.map(src -> src.getOdontologo().getId(),TurnoSalidaDto::setIdOdontologo);
-                    mapper.map(src -> src.getOdontologo().getNombre()+" "+src.getOdontologo().getApellido(),TurnoSalidaDto::setNombreCompletoOdontologo);
-                });*/
 
         modelMapper.typeMap(PacienteSalidaDto.class, Paciente.class)
                 .addMappings(mapper -> mapper.map(PacienteSalidaDto::getDomicilioSalidaDto, Paciente::setDomicilio));
@@ -181,23 +172,23 @@ public class TurnoService implements ITurnoService {
     }
 
     private Turno deDtoAEntidad(PacienteSalidaDto pacienteEncontrado, OdontologoSalidaDto odontologoEncontrado, TurnoEntradaDto turnoEntradaDto){
-        //mapeamos de dto a entidad
+
         Turno turnoARegistrar= new Turno();
-        //de pacienteSalidaDto a Paciente
+
         Paciente paciente = modelMapper.map(pacienteEncontrado,Paciente.class);
         LOGGER.info("Paciente entidad: {}", JsonPrinter.toString(paciente));
-        //reanudamos la persistencia
+
         paciente = entityManager.merge(paciente);
-        //seteamos
+
         turnoARegistrar.setPaciente(paciente);
-        //de odontologoSalidaDto a Odontologo
+
         Odontologo odontologo = modelMapper.map(odontologoEncontrado,Odontologo.class);
         LOGGER.info("Odontologo entidad: {}", JsonPrinter.toString(odontologoEncontrado));
-        //reanudamos la persistencia
+
         odontologo = entityManager.merge(odontologo);
-        //seteamos
+
         turnoARegistrar.setOdontologo(odontologo);
-        //fecha y hora
+
         turnoARegistrar.setFechaYHora(turnoEntradaDto.getFechaYHora());
         LOGGER.info("Turno a registrar entidad: {}", JsonPrinter.toString(turnoARegistrar));
         return turnoARegistrar;

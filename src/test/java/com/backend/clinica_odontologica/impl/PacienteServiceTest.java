@@ -35,7 +35,6 @@ class PacienteServiceTest {
 
         PacienteSalidaDto pacienteSalidaDto = pacienteService.registrarPaciente(pacienteEntradaDto);
 
-        //assert
         assertNotNull(pacienteSalidaDto);
         assertNotNull(pacienteSalidaDto.getId());
         assertEquals("Juan", pacienteSalidaDto.getNombre());

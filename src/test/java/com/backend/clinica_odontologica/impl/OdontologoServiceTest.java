@@ -33,7 +33,7 @@ class OdontologoServiceTest {
 
         OdontologoSalidaDto odontologoSalidaDto = odontologoService.registrarOdontologo(odontologoEntradaDto);
 
-        //assert
+
         assertNotNull(odontologoSalidaDto);
         assertNotNull(odontologoSalidaDto.getId());
         assertEquals("Daniel", odontologoSalidaDto.getNombre());

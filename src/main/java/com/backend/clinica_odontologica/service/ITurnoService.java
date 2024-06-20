@@ -1,10 +1,7 @@
 package com.backend.clinica_odontologica.service;
 
-import com.backend.clinica_odontologica.dto.entrada.PacienteEntradaDto;
 import com.backend.clinica_odontologica.dto.entrada.TurnoEntradaDto;
-import com.backend.clinica_odontologica.dto.salida.PacienteSalidaDto;
 import com.backend.clinica_odontologica.dto.salida.TurnoSalidaDto;
-import com.backend.clinica_odontologica.entity.Turno;
 import com.backend.clinica_odontologica.exceptions.BadRequestException;
 import com.backend.clinica_odontologica.exceptions.ResourceNotFoundException;
 

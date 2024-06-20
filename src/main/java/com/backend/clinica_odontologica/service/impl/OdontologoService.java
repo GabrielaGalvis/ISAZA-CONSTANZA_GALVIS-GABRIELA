@@ -16,7 +16,6 @@ import java.util.List;
 @Service
 public class OdontologoService implements IOdontologoService {
 
-    //se mapea de DTO a entidad y viceversa
     private final Logger LOGGER = LoggerFactory.getLogger(PacienteService.class);
     private OdontologoRepository odontologoRepository;
     private final ModelMapper modelMapper;
@@ -29,14 +28,13 @@ public class OdontologoService implements IOdontologoService {
 
     @Override
     public OdontologoSalidaDto registrarOdontologo(OdontologoEntradaDto odontologoEntradaDto) {
-        //logica de negocio
-        //mapeo de dto a entidad
+
         LOGGER.info("OdontologoEntradaDto: {}" , JsonPrinter.toString(odontologoEntradaDto));
         Odontologo odontologo = modelMapper.map(odontologoEntradaDto, Odontologo.class);
         LOGGER.info("OdontologoEntidad: {}" , JsonPrinter.toString(odontologo));
         Odontologo odontologoRegistrado = odontologoRepository.save(odontologo);
         LOGGER.info("OdontologoRegistrado: {}" , JsonPrinter.toString(odontologoRegistrado));
-        //mapeo de entidad a dto
+
         OdontologoSalidaDto odontologoSalidaDto = modelMapper.map(odontologoRegistrado, OdontologoSalidaDto.class);
         LOGGER.info("OdontologoSalidaDto: {}", JsonPrinter.toString( odontologoSalidaDto));
         return  odontologoSalidaDto;
@@ -59,7 +57,7 @@ public class OdontologoService implements IOdontologoService {
 
     @Override
     public List<OdontologoSalidaDto> listarOdontologos() {
-        //mapeo de lista de entidades a lista de dtos
+
         List<OdontologoSalidaDto> odontologos = odontologoRepository.findAll()
                 .stream()
                 .map(odontologo -> modelMapper.map(odontologo, OdontologoSalidaDto.class))

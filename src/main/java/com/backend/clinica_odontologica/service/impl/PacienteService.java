@@ -16,7 +16,6 @@ import java.util.List;
 @Service
 public class PacienteService implements IPacienteService {
 
-    //se mapea de DTO a entidad y viceversa
     private final Logger LOGGER = LoggerFactory.getLogger(PacienteService.class);
     private final PacienteRepository pacienteRepository;
     private final ModelMapper modelMapper;
@@ -29,14 +28,13 @@ public class PacienteService implements IPacienteService {
 
     @Override
     public PacienteSalidaDto registrarPaciente(PacienteEntradaDto pacienteEntradaDto) {
-        //logica de negocio
-        //mapeo de dto a entidad
+
         LOGGER.info("PacienteEntradaDto: {}" , JsonPrinter.toString(pacienteEntradaDto));
         Paciente paciente = modelMapper.map(pacienteEntradaDto, Paciente.class);
         LOGGER.info("PacienteEntidad: {}" , JsonPrinter.toString(paciente));
         Paciente pacienteRegistrado = pacienteRepository.save(paciente);
         LOGGER.info("PacienteRegistrado: {}", JsonPrinter.toString( pacienteRegistrado));
-        //mapeo de entidad a dto
+
         PacienteSalidaDto pacienteSalidaDto = modelMapper.map(pacienteRegistrado, PacienteSalidaDto.class);
         LOGGER.info("PacienteSalidaDto: {}" , JsonPrinter.toString(pacienteSalidaDto));
         return pacienteSalidaDto;
@@ -59,7 +57,7 @@ public class PacienteService implements IPacienteService {
 
     @Override
     public List<PacienteSalidaDto> listarPacientes() {
-        //mapeo de lista de entidades a lista de dtos
+
         List<PacienteSalidaDto> pacientes = pacienteRepository.findAll()
                 .stream()
                 .map(paciente -> modelMapper.map(paciente, PacienteSalidaDto.class))
